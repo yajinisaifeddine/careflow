@@ -1,0 +1,38 @@
+spring.application.name=careflow
+logging.level.org.springframework.security=DEBUG
+
+
+# ===============================
+# = DATABASE CONFIGURATION
+# ===============================
+spring.datasource.url=jdbc:postgresql://localhost:5432/careflow
+spring.datasource.username=
+spring.datasource.password=
+
+# PostgreSQL JDBC driver
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# ===============================
+# = JPA / HIBERNATE CONFIGURATION
+# ===============================
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+
+# Optional: show SQL queries in console
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Optional: Naming strategy (recommended)
+spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+
+# === GOOGLE OAUTH2 CONFIG ===
+spring.security.oauth2.client.registration.google.client-id=
+spring.security.oauth2.client.registration.google.client-secret=
+spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
+spring.security.oauth2.client.registration.google.scope=email,profile
+
+spring.security.oauth2.client.provider.google.authorization-uri=https://accounts.google.com/o/oauth2/v2/auth
+spring.security.oauth2.client.provider.google.token-uri=https://www.googleapis.com/oauth2/v4/token
+spring.security.oauth2.client.provider.google.user-info-uri=https://www.googleapis.com/oauth2/v3/userinfo
+spring.security.oauth2.client.provider.google.user-name-attribute=sub
