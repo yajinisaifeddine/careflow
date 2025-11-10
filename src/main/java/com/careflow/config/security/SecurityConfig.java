@@ -2,8 +2,11 @@ package com.careflow.config.security;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@Slf4j
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -37,29 +41,29 @@ public class SecurityConfig {
                 }))
 
                 // ✅ 2. Stateless session (no session, no cookies)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 // ✅ 3. Disable default login pages and basic auth
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
 
                 // ✅ 4. Custom JSON response instead of HTML
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.setContentType("application/json");
-                            response.getWriter().write("{\"error\": \"Unauthorized\"}");
-                        }))
+
 
                 // ✅ 5. Configure public/private routes
                 .authorizeHttpRequests(auth -> auth
+                        // Auth endpoints
+
                         .requestMatchers(
                                 "/auth/**",
                                 "/oauth2/**",
                                 "/login/**",
                                 "/login",
                                 "/oauth2/authorization/**",
-                                "/login/oauth2/code/*")
+                                "/login/oauth2/code/*",
+                                "/error",
+                                "/error/**"
+                                )
                         .permitAll()
                         .anyRequest().authenticated())
 
@@ -72,10 +76,24 @@ public class SecurityConfig {
                         response.getWriter().write("{\"error\": \"" + exception.getMessage() + "\"}");
                     });
                 })
-                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // log full exception with stack trace
+                            log.error("Unauthorized access: {}", authException.getMessage(), authException);
 
-                // ✅ 7. Add our JWT filter before username-password auth filter
-                .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+
+                            String message = authException.getMessage() != null ? authException.getMessage()
+                                    : "Unauthorized";
+                            // escape any quotes in the message to produce valid JSON
+                            message = message.replace("\"", "\\\"");
+                            response.getWriter().write("{\"error\": \"" + message + "\"}");
+                        }))
+
+                // Add JWT filter first, then rate limit filter
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class)
         // 8. add a rate limiter filter
         ;
 

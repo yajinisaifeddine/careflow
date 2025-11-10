@@ -6,6 +6,8 @@ import java.util.HashMap;
 
 import javax.management.relation.RoleNotFoundException;
 
+import com.careflow.exceptions.auth.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,43 +20,49 @@ import com.careflow.exceptions.auth.UserAlreadyExistsException;
 import com.careflow.exceptions.auth.UserNotFoundException;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<?> handleUserNotFound(UserNotFoundException ex) {
-        logger.warn(ex.getMessage());
+        log.warn(ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<?> handleUserAlreadyExists(UserAlreadyExistsException ex) {
-        logger.warn(ex.getMessage());
+        log.warn(ex.getMessage());
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?> hendleDeniedAccess(AccessDeniedException ex) {
-        logger.info(ex.getMessage());
+        log.info(ex.getMessage());
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(RoleNotFoundException.class)
     public ResponseEntity<?> handleRoleNotFound(RoleNotFoundException ex) {
-        logger.error("role not found", ex.getMessage());
+        log.error("role not found", ex.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleNotValidMethodArgument(MethodArgumentNotValidException ex) {
-        logger.warn(ex.getMessage());
+        log.warn(ex.getMessage());
         HashMap<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         return buildResponse(HttpStatus.BAD_REQUEST, errors);
 
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException ex){
+log.error("token is expired");
+return  buildResponse(HttpStatus.BAD_REQUEST,ex.getMessage());
     }
 
     private ResponseEntity<ApiError> buildResponse(HttpStatus status, Object message) {

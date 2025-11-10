@@ -2,6 +2,7 @@ package com.careflow.config.security;
 
 import java.io.IOException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 
+@Slf4j
 @Component
 @AllArgsConstructor
 public class RateLimitFilter implements Filter {
@@ -31,12 +33,11 @@ public class RateLimitFilter implements Filter {
 
         String clientIp = getClientIp(httpRequest);
 
-        // Check rate limit for this IP
         if (rateLimitngService.tryAcquire(clientIp)) {
             chain.doFilter(request, response);
         } else {
             httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            httpResponse.getWriter().write("Too Many Requests");
+            httpResponse.getWriter().write("{\"error\": \" Too many requests \"}");
         }
     }
 
