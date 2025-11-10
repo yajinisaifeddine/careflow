@@ -1,6 +1,9 @@
 package com.careflow.utils;
 
 import com.careflow.exceptions.auth.ExpiredJwtException;
+import com.careflow.exceptions.auth.UserNotFoundException;
+import com.careflow.models.User;
+import com.careflow.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -8,6 +11,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.stereotype.Component;
@@ -19,6 +24,12 @@ import java.util.function.Function;
 @Component
 @Slf4j
 public class JwtUtils {
+    private final UserRepository userRepository;
+
+    public JwtUtils(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Value("${jwt.secret-key}")
     private String SECRET_KEY ;
 
@@ -52,20 +63,14 @@ public class JwtUtils {
 
     // === Internal helpers ===
     public Claims extractAllClaims(String token) {
-        try {
+
             return Jwts
                     .parserBuilder()
                     .setSigningKey(getSignInKey())
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-        }
-        catch (JwtException e){
-            throw  new ExpiredJwtException("token is expired");
-        }catch (Exception e) {
-            log.error("invalid token",e);
-            throw new InvalidBearerTokenException("invalid token");
-        }
+
     }
 
     public Key getSignInKey() {
@@ -80,5 +85,15 @@ public class JwtUtils {
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
+    }
+
+    public User extractUser(String token){
+        String email = extractUsername(token);
+        return userRepository.findByEmail(email).orElseThrow(()->new UserNotFoundException("user is not found"));
+    }
+    public User getAuthenticatedUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        return userRepository.findByEmail(user.getUsername()).orElseThrow(()->new UserNotFoundException("user is not logged in"));
     }
 }

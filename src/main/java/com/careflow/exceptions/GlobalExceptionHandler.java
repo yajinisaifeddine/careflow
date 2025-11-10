@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import javax.management.relation.RoleNotFoundException;
 
-import com.careflow.exceptions.auth.ExpiredJwtException;
+import com.careflow.exceptions.auth.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import com.careflow.exceptions.auth.UserAlreadyExistsException;
-import com.careflow.exceptions.auth.UserNotFoundException;
 
 @RestControllerAdvice
 @Slf4j
@@ -61,9 +58,27 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException ex){
-log.error("token is expired");
-return  buildResponse(HttpStatus.BAD_REQUEST,ex.getMessage());
+        log.error("token is expired");
+        return  buildResponse(HttpStatus.BAD_REQUEST,ex.getMessage());
     }
+
+@ExceptionHandler(PasswordMismatchException.class)
+public ResponseEntity<?> handlePasswordMissmach(PasswordMismatchException ex){
+        log.error("password missmach : {}",ex.getMessage());
+        return  buildResponse(HttpStatus.BAD_REQUEST,ex.getMessage());
+}
+    @ExceptionHandler(InvalidTokenException.class)
+    public  ResponseEntity<?> handleInvalidToken(InvalidTokenException ex){
+        log.error("token is invalid {}",ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST,ex.getMessage());
+    }
+
+    @ExceptionHandler(TooManyResetAttemptsException.class)
+    public ResponseEntity<?> handleTooManyRestAttempts(TooManyResetAttemptsException ex){
+        log.error("too many reset attempts :{}",ex.getMessage());
+        return buildResponse(HttpStatus.TOO_MANY_REQUESTS,ex.getMessage());
+    }
+
 
     private ResponseEntity<ApiError> buildResponse(HttpStatus status, Object message) {
         ApiError error = new ApiError(status.value(), message, LocalDateTime.now());

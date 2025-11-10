@@ -103,7 +103,7 @@ class AuthRegisterTest {
         assertEquals(registerRequest.getEmail(), response.getEmail(), "Email should match");
         assertEquals(registerRequest.getFullName(), response.getFullName(), "Full name should match");
         assertEquals("patient", response.getRole(), "Role should be 'patient'");
-        assertEquals(expectedAccessToken, response.getToken(), "Token should match");
+        assertEquals(expectedAccessToken, response.getAccessToken(), "Token should match");
 
         // Verify user was saved
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);

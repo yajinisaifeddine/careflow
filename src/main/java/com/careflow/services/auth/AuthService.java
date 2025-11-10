@@ -1,5 +1,6 @@
 package com.careflow.services.auth;
 
+import com.careflow.dtos.auth.*;
 import com.careflow.repositories.RefreshTokenRepository;
 import com.careflow.utils.JwtUtils;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,12 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.stereotype.Service;
 
-import com.careflow.dtos.auth.LoginRequest;
-import com.careflow.dtos.auth.LoginResponse;
-import com.careflow.dtos.auth.RefreshTokenRequest;
-import com.careflow.dtos.auth.RefreshTokenResponse;
-import com.careflow.dtos.auth.RegisterRequest;
-import com.careflow.dtos.auth.RegisterResponse;
 import com.careflow.exceptions.auth.AccessDeniedException;
 import com.careflow.exceptions.auth.RoleNotFoundException;
 import com.careflow.exceptions.auth.UserAlreadyExistsException;
@@ -157,4 +152,5 @@ public class AuthService {
             throw new InvalidBearerTokenException("Invalid or expired refresh token provided.");
         }
     }
+
 }

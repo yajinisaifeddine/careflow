@@ -47,7 +47,9 @@ private final JwtUtils jwtUtils;
         }
 
         jwt = authHeader.substring(7);
-        userEmail = jwtUtils.extractUsername(jwt);
+        try {
+            userEmail = jwtUtils.extractUsername(jwt);
+
 
         // Only process JWT if email was extracted and no authentication exists
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -62,7 +64,9 @@ private final JwtUtils jwtUtils;
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+        }
         filterChain.doFilter(request, response);
 
     }
