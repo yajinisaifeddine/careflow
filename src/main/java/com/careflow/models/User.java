@@ -1,22 +1,17 @@
 package com.careflow.models;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.annotation.Nullable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -48,8 +43,10 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(role.getName()));
     }
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<RefreshToken> refreshTokens;
+
     @Override
     public String getPassword() {
         return password;

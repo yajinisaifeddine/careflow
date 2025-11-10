@@ -1,26 +1,24 @@
 package com.careflow.services.auth;
 
 import com.careflow.dtos.auth.*;
-import com.careflow.repositories.RefreshTokenRepository;
-import com.careflow.utils.JwtUtils;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
-import org.springframework.stereotype.Service;
-
 import com.careflow.exceptions.auth.AccessDeniedException;
 import com.careflow.exceptions.auth.RoleNotFoundException;
 import com.careflow.exceptions.auth.UserAlreadyExistsException;
 import com.careflow.exceptions.auth.UserNotFoundException;
 import com.careflow.models.Role;
 import com.careflow.models.User;
+import com.careflow.repositories.RefreshTokenRepository;
 import com.careflow.repositories.RoleRepository;
 import com.careflow.repositories.UserRepository;
-
+import com.careflow.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -71,11 +69,11 @@ public class AuthService {
         String refreshToken = refreshTokenService.generateRefreshToken(user);
 
         if (
-                accessToken==null || accessToken.isEmpty()|| refreshToken==null || refreshToken.isEmpty()
-        ){
-            log.info(accessToken+refreshToken);
+                accessToken == null || accessToken.isEmpty() || refreshToken == null || refreshToken.isEmpty()
+        ) {
+            log.info(accessToken + refreshToken);
             userRepository.delete(user);
-            throw  new InvalidBearerTokenException("access or refresh token are invalid");
+            throw new InvalidBearerTokenException("access or refresh token are invalid");
         }
         log.info("registering user " + user.getEmail());
 
@@ -92,21 +90,18 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest request) {
-        // Authentification via Spring Security
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        // Récupération de l'utilisateur
         User user = (User) authentication.getPrincipal();
 
-        // Génération des tokens
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = refreshTokenService.generateRefreshToken(user);
 
         return LoginResponse.builder()
                 .email(user.getEmail())
-                .accessToken(accessToken) // Utilisation du champ renommé
-                .refreshToken(refreshToken) // Ajout du Refresh Token
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .fullName(user.getFullName())
                 .role(user.getRole().getName().split("_")[1].toLowerCase())
                 .build();

@@ -14,8 +14,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 
 @Slf4j
@@ -24,7 +26,7 @@ import java.util.*;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private  final JwtUtils jwtUtils;
+    private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
 
 
@@ -33,17 +35,18 @@ public class RefreshTokenService {
     }
 
 
-
     public void revokeRefreshToken(String token) {
-        RefreshToken refreshToken =  refreshTokenRepository.findByToken(token).orElseThrow(()->{
-        throw new InvalidBearerTokenException("token is invalid");});
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(token).orElseThrow(() -> {
+            throw new InvalidBearerTokenException("token is invalid");
+        });
         refreshToken.setRevoked(true);
         refreshTokenRepository.save(refreshToken);
     }
 
     public void revokeAllUserTokens(User user) {
-        refreshTokenRepository.updateRevokedByUser(user,true);
+        refreshTokenRepository.updateRevokedByUser(user, true);
     }
+
     public String generateRefreshToken(UserDetails userDetails) {
         log.info("generating refresh token with user details");
         return generateRefreshToken(new HashMap<>(), userDetails);
@@ -67,14 +70,14 @@ public class RefreshTokenService {
                     log.error("faild to find user");
                     return new UsernameNotFoundException("User not found");
                 });
-log.info("saving token to database");
+        log.info("saving token to database");
         RefreshToken refreshToken = RefreshToken.builder()
-                                .token(token)
-                                .user(user)
-                                .expiresAt(jwtUtils.generateRefreshTokenExpirationDate())
-                                .revoked(false)
-                                .createdAt(new Date())
-                                .updatedAt(new Date()).build();
+                .token(token)
+                .user(user)
+                .expiresAt(jwtUtils.generateRefreshTokenExpirationDate())
+                .revoked(false)
+                .createdAt(new Date())
+                .updatedAt(new Date()).build();
 
 
         refreshTokenRepository.save(refreshToken);

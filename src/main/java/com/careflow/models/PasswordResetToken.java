@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -32,7 +31,7 @@ public class PasswordResetToken {
     @Column(name = "expires_at", nullable = false)
     private Date expiresAt;
 
-    @Column(name = "is_used",nullable = false)
+    @Column(name = "is_used", nullable = false)
     private Boolean isUsed = false;
 
     @Column(name = "created_at")
@@ -45,6 +44,6 @@ public class PasswordResetToken {
     }
 
     public boolean isExpired() {
-        return new  Date().after(expiresAt);
+        return new Date().after(expiresAt);
     }
 }

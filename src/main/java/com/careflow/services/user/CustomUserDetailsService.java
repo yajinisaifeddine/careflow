@@ -1,13 +1,11 @@
 package com.careflow.services.user;
 
+import com.careflow.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import com.careflow.repositories.UserRepository;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

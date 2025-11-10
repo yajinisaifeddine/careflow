@@ -1,25 +1,16 @@
 package com.careflow.services.auth;
 
-import java.security.Key;
-import java.util.Arrays;
+import com.careflow.utils.JwtUtils;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
-
-import com.careflow.utils.JwtUtils;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
-import org.springframework.stereotype.Service;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 
 @Slf4j
 @Service
@@ -27,6 +18,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtService {
 
     private JwtUtils jwtUtils;
+
     public String generateAccessToken(UserDetails userDetails) {
         return generateAccessToken(new HashMap<>(), userDetails);
     }

@@ -36,9 +36,7 @@ public class EmailService {
         }
     }
 
-    /**
-     * Send an HTML email
-     */
+
     public void sendHtmlEmail(String to, String subject, String htmlContent) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -57,9 +55,6 @@ public class EmailService {
         }
     }
 
-    /**
-     * Send email with attachment
-     */
     public void sendEmailWithAttachment(String to, String subject, String text,
                                         String attachmentPath) {
         try {
