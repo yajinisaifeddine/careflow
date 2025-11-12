@@ -1,4 +1,4 @@
-package com.careflow.auth;
+package com.careflow;
 
 import com.careflow.services.email.EmailService;
 import org.junit.jupiter.api.Test;

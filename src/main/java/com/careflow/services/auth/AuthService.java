@@ -5,12 +5,14 @@ import com.careflow.exceptions.auth.AccessDeniedException;
 import com.careflow.exceptions.auth.RoleNotFoundException;
 import com.careflow.exceptions.auth.UserAlreadyExistsException;
 import com.careflow.exceptions.auth.UserNotFoundException;
+import com.careflow.models.RefreshToken;
 import com.careflow.models.Role;
 import com.careflow.models.User;
 import com.careflow.repositories.RefreshTokenRepository;
 import com.careflow.repositories.RoleRepository;
 import com.careflow.repositories.UserRepository;
 import com.careflow.utils.JwtUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -67,6 +69,7 @@ public class AuthService {
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = refreshTokenService.generateRefreshToken(user);
+
 
         if (
                 accessToken == null || accessToken.isEmpty() || refreshToken == null || refreshToken.isEmpty()
@@ -148,4 +151,17 @@ public class AuthService {
         }
     }
 
+    @Transactional
+    public LogoutResponse logout(LogoutRequest request) {
+        User user = jwtUtils.getAuthenticatedUser();
+        if (user == null) throw new UserNotFoundException("user is not found");
+        log.info(request.getRefreshToken());
+        RefreshToken token = refreshTokenRepository.findByToken(request.getRefreshToken()).orElseThrow(()->new InvalidBearerTokenException("token is invalid"));
+       if(!token.getUser().getId().equals(user.getId())){
+           throw new AccessDeniedException("cannot logout another user's session");
+       }
+       refreshTokenRepository.updateRevokedByUser(user,true);
+
+        return LogoutResponse.builder().message("logout successflly").build();
+    }
 }

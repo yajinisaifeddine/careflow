@@ -7,6 +7,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -20,12 +22,11 @@ import java.util.function.Function;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtUtils {
     private final UserRepository userRepository;
 
-    public JwtUtils(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+
 
     @Value("${jwt.secret-key}")
     private String SECRET_KEY;

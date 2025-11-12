@@ -1,6 +1,7 @@
 package com.careflow.controllers;
 
 import com.careflow.dtos.auth.LoginRequest;
+import com.careflow.dtos.auth.LogoutRequest;
 import com.careflow.dtos.auth.RefreshTokenRequest;
 import com.careflow.dtos.auth.RegisterRequest;
 import com.careflow.services.auth.AuthService;
@@ -31,5 +32,9 @@ public class AuthController {
         return ResponseEntity.ok(authService.refresh(request));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@Valid @RequestBody LogoutRequest request){
+        return ResponseEntity.ok(authService.logout(request));
+    }
 
 }
