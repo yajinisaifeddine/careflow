@@ -56,7 +56,7 @@ public class ResetPasswordService {
 
         sendVerificationEmail(user.getEmail(), verificationCode);
         return ResetPasswordResponse.builder()
-                .status(HttpStatus.Ok)
+                .status(HttpStatus.OK)
                 .message("verification code sent")
                 .build();
     }
@@ -71,7 +71,7 @@ public class ResetPasswordService {
         for (PasswordResetToken token : passwordResetTokenList) {
             if (passwordEncoder.matches(request.getToken(), token.getTokenHash())) {
                 log.info("found token");
-                return ResetPasswordVerifyResponse.builder().success(true)
+                return ResetPasswordVerifyResponse.builder().status(HttpStatus.OK)
                         .message("token is valid").build();
             }
         }
@@ -130,7 +130,7 @@ public class ResetPasswordService {
         sendPasswordChangedEmail(user.getEmail());
 
         return PasswordResetResponse.builder()
-                .success(true)
+                .status(HttpStatus.OK)
                 .message("Password has changed successfully")
                 .build();
     }
@@ -185,7 +185,7 @@ public class ResetPasswordService {
 
         sendVerificationEmail(user.getEmail(), verificationCode);
         return ResetPasswordResponse.builder()
-                .success(true)
+                .status(HttpStatus.OK)
                 .message("verification code sent")
                 .build();
 
