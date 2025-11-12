@@ -1,5 +1,6 @@
 package com.careflow.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,13 +30,17 @@ public class User implements UserDetails {
 
     @Column(unique = true)
     private String email;
+    @JsonIgnore
     @Nullable
     private String password;
 
     private String provider; // "local" or "google"
 
+    @JsonIgnore
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
+
     @Fetch(FetchMode.JOIN)
     private Role role;
 
@@ -44,6 +49,7 @@ public class User implements UserDetails {
         return Collections.singletonList(new SimpleGrantedAuthority(role.getName()));
     }
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<RefreshToken> refreshTokens;
 

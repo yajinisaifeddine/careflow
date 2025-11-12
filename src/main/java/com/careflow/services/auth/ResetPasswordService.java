@@ -16,6 +16,7 @@ import com.careflow.utils.JwtUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +56,7 @@ public class ResetPasswordService {
 
         sendVerificationEmail(user.getEmail(), verificationCode);
         return ResetPasswordResponse.builder()
-                .success(true)
+                .status(HttpStatus.Ok)
                 .message("verification code sent")
                 .build();
     }
@@ -75,7 +76,7 @@ public class ResetPasswordService {
             }
         }
         log.info("didn't find token");
-        return ResetPasswordVerifyResponse.builder().success(false).message("token is invalid").build();
+        return ResetPasswordVerifyResponse.builder().status(HttpStatus.OK).message("token is invalid").build();
     }
 
     @Transactional
@@ -105,7 +106,7 @@ public class ResetPasswordService {
         for (PasswordHistory ph : passwordHistory) {
             if (passwordEncoder.matches(request.getNewPassword(), ph.getPasswordHash())) {
                 return PasswordResetResponse.builder()
-                        .success(false)
+                        .status(HttpStatus.OK)
                         .message("Cannot reuse any of your last passwords.")
                         .build();
             }

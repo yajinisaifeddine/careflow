@@ -4,15 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
+
+import java.util.Map;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterResponse {
-    private String accessToken;
-    private String refreshToken;
-    private String email;
-    private String fullName;
-    private String role;
+    private HttpStatus status;
+    private String message;
+    private Map data;
 }
